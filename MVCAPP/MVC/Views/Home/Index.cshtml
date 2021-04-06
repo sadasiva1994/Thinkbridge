@@ -1,0 +1,174 @@
+﻿@model BuisnessLayer.Inventory
+@{
+    ViewBag.Title = "Home Page";
+}
+<div class="col-md-12">
+    <br />
+
+</div>
+<div class="row">
+    @using (Html.BeginForm())
+    {
+
+        <div class="col-md-3">
+            <div class="editor-field">
+                @(Html.TextBoxFor(x => x.Item_Name, new { @class = "form-control", @PlaceHolder = "Item Name" }))
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="editor-field">
+                @(Html.TextBoxFor(x => x.Description, new { @class = "form-control", @PlaceHolder = "Description" }))
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="editor-field">
+                @(Html.TextBoxFor(x => x.Price, new { @class = "form-control", @PlaceHolder = "Price" }))
+                @(Html.HiddenFor(x => x.Item_id))
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="editor-field">
+                <input type="submit" value="Save" id="sve" class="btn btn-Success" />
+            </div>
+        </div>
+
+    }
+    <div class="col-md-1">
+        <div class="editor-field">
+            <button id="updt" class="btn btn-Success">Update</button>
+        </div>
+    </div>
+</div>
+<br />
+<div class="box-body scrol">
+    <div class="box-body">
+        <div class="row">
+            <table id="sada" style="width:100%" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>
+                            Description
+                        </th>
+                        <th>
+                            Price
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+    @*<script src="~/Scripts/jquery.dataTables.js"></script>*@
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+           
+            $.ajax({
+                url: "@Url.Action("Getdetails", "Home")",
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                data: {},
+                success: function (resultData) {
+                    $('#sada').DataTable({
+                        data: resultData,
+                        'paging': true,
+                        'lengthChange': true,
+                        'searching': true,
+                        'ordering': true,
+                        'info': true,
+                        'autoWidth': true,
+                        columns: [
+
+                            { data: 'Item_Name' },
+                            { data: 'Description' },
+                            { data: 'Price' }
+
+                        ],
+                        "columnDefs": [{
+                            "targets": 3, "data": "name", "render": function (data, type, full, meta) {
+                                return '<button type="button" id=' + full.Item_id + ' class="btn btn-default btn-xs cs" ><i class="fa fa-refresh"></i>Edit</button><button type="button" id=' + full.Item_id + ' class="btn btn-default btn-xs dcs"> Delete</button>'
+                            }
+                        }]
+
+
+
+
+                    });
+                }
+
+            })
+            $("#updt").hide();
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).on('click', '.cs', function (event) {
+            var Item_id = $(this).closest('.cs').attr('id');
+            var itemname = $(this).closest('tr').find('td:eq(0)').text().trim();
+            var Description = $(this).closest('tr').find('td:eq(1)').text().trim();
+            var price = $(this).closest('tr').find('td:eq(2)').text().trim();
+            $("#Item_Name").val(itemname);
+            $("#Description").val(Description);
+            $("#Price").val(price);
+            $("#Item_id").val(Item_id);
+            $("#sve").hide();
+            $("#updt").show();
+        });
+    </script>
+    <script>
+        $(document).on('click', '#updt', function () {
+            $.ajax({
+                //url: "/Home/getsubcatfomcat",
+                url: "@Url.Action("UpdateData", "Home")",
+                type: "Post",
+                data: '{"Item_id":"' + $("#Item_id").val() + '","Item_Name":"' + $("#Item_Name").val() + '","Description":"' + $("#Description").val() + '","Price":"' + $("#Price").val() + '"}',
+                contentType: 'application/json; charset=utf-8',
+                datatype: 'JSON',
+                success: function (resultData1) {
+                   
+                        alert('Updates sucessfully')
+                        window.location.reload();
+                   
+                },
+                error: function (errormessage) {
+                    alert(errormessage.responseText);
+                }
+            });
+
+        });
+   
+    </script>
+<script>
+    $(document).on('click', '.dcs', function () {
+        var Item_id = $(this).closest('.dcs').attr('id');
+            $.ajax({
+                //url: "/Home/getsubcatfomcat",
+                url: "@Url.Action("DeleteData", "Home")",
+                type: "Post",
+                data: '{"Item_id":"' + Item_id + '"}',
+                contentType: 'application/json; charset=utf-8',
+                datatype: 'JSON',
+                success: function (resultData1) {
+
+                        alert('Deleted sucessfully')
+                        window.location.reload();
+
+                },
+                error: function (errormessage) {
+                    alert(errormessage.responseText);
+                }
+            });
+
+        });
+
+</script>
+}
+
