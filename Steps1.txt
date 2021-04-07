@@ -1,0 +1,2 @@
+Change the Connection String Of webconfig Present in MVC API
+Change The Api Path Present in the appsettings of the Webconfig present in MVCAPP
